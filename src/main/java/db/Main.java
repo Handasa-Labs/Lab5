@@ -11,7 +11,12 @@ import javax.net.ssl.SSLException;
 
 public class Main {
 	static private final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-	static private final String DB_URL = "jdbc:mysql://remotemysql.com/HL8sVJOtq3?useSSL=false";
+
+	// update USER, PASS and DB URL according to credentials provided by the website:
+	// https://remotemysql.com/
+	// in future get those hardcoede string into separated config file.
+	static private final String DB = "HL8sVJOtq3";
+	static private final String DB_URL = "jdbc:mysql://remotemysql.com/"+ DB + "?useSSL=false";
 	static private final String USER = "HL8sVJOtq3";
 	static private final String PASS = "MPVWKI2S0e";
 
@@ -22,7 +27,9 @@ public class Main {
 			Class.forName(JDBC_DRIVER);
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
-			
+
+			System.out.println("\t============");
+
 			String sql = "SELECT * FROM flights";
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
@@ -34,7 +41,9 @@ public class Main {
 
 				System.out.format("Number %5s Origin %15s destinations %18s Distance %5d Price %5d\n", num, origin, destination, distance, price);
 			}
-			
+
+			System.out.println("\t============");
+
 			sql = "SELECT origin, destination, distance, num FROM flights";
 			rs = stmt.executeQuery(sql);
 			while (rs.next()) {
@@ -46,7 +55,8 @@ public class Main {
 				System.out.print(",\tTo: " + destination);
 				System.out.println(",\t\tDistance: " + distance);
 			}
-			
+
+			System.out.println("\t============");
 			
 			sql = "SELECT origin, destination FROM flights WHERE distance > ?";
 			PreparedStatement prep_stmt = conn.prepareStatement(sql);
