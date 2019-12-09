@@ -15,10 +15,10 @@ public class Main {
 	// update USER, PASS and DB URL according to credentials provided by the website:
 	// https://remotemysql.com/
 	// in future move these hard coded strings into separated config file or even better env variables
-	static private final String DB = "place_for_db_name";
+	static private final String DB = "RGx8X2ZYtW";
 	static private final String DB_URL = "jdbc:mysql://remotemysql.com/"+ DB + "?useSSL=false";
-	static private final String USER = "place_for_username";
-	static private final String PASS = "place_for_password";
+	static private final String USER = "RGx8X2ZYtW";
+	static private final String PASS = "IULy36aruU";
 
 	public static void main(String[] args) throws SSLException {
 		Connection conn = null;
@@ -27,9 +27,50 @@ public class Main {
 			Class.forName(JDBC_DRIVER);
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			stmt = conn.createStatement();
-
+			
 			System.out.println("\t============");
 
+			// a 
+			PreparedStatement update_flight = conn.prepareStatement("UPDATE flights SET price=? WHERE num=?");
+			
+			update_flight.setInt(1, 2019);
+			update_flight.setInt(2, 387);
+			update_flight.execute();
+			
+			// b
+			ResultSet rs_ = stmt.executeQuery("SELECT price FROM flights WHERE num=387");
+			while(rs_.next()) {
+				int price_ = rs_.getInt("price");
+				System.out.format("The new price of flight 387 is %5d\n", price_);
+			}
+			// c
+			Statement my_stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			ResultSet uprs = my_stmt.executeQuery("SELECT * FROM flights WHERE distance > 1000");
+			while(uprs.next()) {
+				uprs.updateInt("price", uprs.getInt("price")+100);
+				uprs.updateRow();
+			}
+			uprs = my_stmt.executeQuery("SELECT * FROM flights WHERE price < 300");
+			while(uprs.next()) {
+				uprs.updateInt("price", uprs.getInt("price")-25);
+				uprs.updateRow();
+			}			
+			
+			
+			
+			// d
+			PreparedStatement update_distant_flight_prices = conn.prepareStatement("UPDATE flights SET price=price+? WHERE distance > ?");
+			PreparedStatement update_cheap_flight_prices = conn.prepareStatement("UPDATE flights SET price=price-? WHERE price < ?");
+
+			update_distant_flight_prices.setInt(1, 100);
+			update_distant_flight_prices.setInt(2, 1000);
+			update_cheap_flight_prices.setInt(1, 25);
+			update_cheap_flight_prices.setInt(2, 300);
+			
+			update_distant_flight_prices.execute();
+			update_cheap_flight_prices.execute();
+
+			//d
 			String sql = "SELECT * FROM flights";
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
